@@ -1,6 +1,6 @@
 import express from "express";
 import type { Express, Request, Response } from "express";
-import pkg from "../package.json";
+import pkg from "../package.json" with { type: "json" };
 // import { authRoutes } from "./modules/auth.routes.js";
 // import { usersRoutes } from "./modules/users/users.routes.js";
 // import { subjectsRoutes } from "./modules/subjects/subjects.routes.js";
@@ -8,11 +8,13 @@ import pkg from "../package.json";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import morgan from "morgan";
 
 const app: Express = express();
 
 app.use(express.json());
 app.use(helmet());
+app.use(morgan('dev'));
 app.use(cors({
   origin: "*"
 }));
