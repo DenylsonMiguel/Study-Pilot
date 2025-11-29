@@ -1,5 +1,6 @@
 import express from "express";
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
+import pkg from "../package.json";
 // import { authRoutes } from "./modules/auth.routes.js";
 // import { usersRoutes } from "./modules/users/users.routes.js";
 // import { subjectsRoutes } from "./modules/subjects/subjects.routes.js";
@@ -23,5 +24,13 @@ app.use(rateLimit({
 // app.use("auth", authRoutes);
 // app.use("users", usersRoutes);
 // app.use("subjects", subjectsRoutes);
+
+app.get('/', async (req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    name: pkg.name,
+    version: pkg.version
+  });
+});
 
 export default app;
