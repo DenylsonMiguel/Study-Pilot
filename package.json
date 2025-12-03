@@ -1,6 +1,6 @@
 {
   "name": "StudyPilot",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Ajudante de estudantes",
   "main": "dist/index.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.24.0",
   "type": "module",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -28,6 +29,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",

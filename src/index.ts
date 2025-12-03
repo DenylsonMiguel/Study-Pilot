@@ -4,7 +4,7 @@ import connectDB from "./config/database.js";
 
 if (!process.env.PORT) throw new Error("Ambiance variable PORT is not found");
 
-connectDB();
+await connectDB();
 
 app.listen(process.env.PORT, () => {
   console.log("Server is running on port", process.env.PORT);
