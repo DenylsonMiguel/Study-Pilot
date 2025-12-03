@@ -4,3 +4,4 @@
 .env
 pnpm-lock.yaml
 package-lock.json
+sendgrid.env

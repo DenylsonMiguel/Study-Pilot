@@ -1,9 +1,9 @@
 import express from "express";
 import type { Express, Request, Response } from "express";
 import pkg from "../package.json" with { type: "json" };
-// import { authRoutes } from "./modules/auth.routes.js";
-// import { usersRoutes } from "./modules/users/users.routes.js";
-// import { subjectsRoutes } from "./modules/subjects/subjects.routes.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+// import usersRoutes from "./modules/users/users.routes.js";
+// import subjectsRoutes from "./modules/subjects/subjects.routes.js";
 
 import cors from "cors";
 import helmet from "helmet";
@@ -22,10 +22,11 @@ app.use(rateLimit({
   windowMs: 60 * 1000,
   limit: 100,
 }));
+app.use(express.static("public"))
 
-// app.use("auth", authRoutes);
-// app.use("users", usersRoutes);
-// app.use("subjects", subjectsRoutes);
+app.use("/auth", authRoutes);
+// app.use("/users", usersRoutes);
+// app.use("/subjects", subjectsRoutes);
 
 app.get('/', async (req: Request, res: Response) => {
   res.json({
