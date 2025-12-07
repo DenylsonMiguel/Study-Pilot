@@ -5,5 +5,6 @@ const controller = authController();
 const authRoutes: Router = Router();
 
 authRoutes.post('/register', controller.register);
+authRoutes.post('/confirm', controller.confirm);
 
 export default authRoutes;
