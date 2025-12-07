@@ -42,7 +42,7 @@ class AuthController {
     
     const result = await this.service.confirm(token, password);
     
-    respond<{ user: { name: string, age: number, email: string, createdAt: Date } }>(result, res);
+    respond<{ user: { name: string, age: number, email: string, id: string, createdAt: Date } }>(result, res);
   }
 }
 

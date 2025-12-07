@@ -1,6 +1,6 @@
 {
   "name": "StudyPilot",
-  "version": "0.5.0",
+  "version": "0.5.4",
   "description": "Ajudante de estudantes",
   "main": "dist/index.js",
   "scripts": {

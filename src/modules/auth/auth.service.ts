@@ -37,7 +37,7 @@ export class AuthService {
     }
   }
   
-  async confirm(token: string, password: string): Promise<Result<{ user: { name: string, age: number, email: string, createdAt: Date } }>> {
+  async confirm(token: string, password: string): Promise<Result<{ user: { name: string, age: number, email: string, id: string, createdAt: Date } }>> {
     try {
       const pendingUser = await PendingUserModel.findOne({ token });
       if (!pendingUser) return Result.fail("User not found", 404, "NOT_FOUND");
@@ -49,7 +49,9 @@ export class AuthService {
       const user = new UserModel({ name: pendingUser.name, age: pendingUser.age,  email: pendingUser.email, password: pendingUser.password });
       await user.save;
       
-      const showUser = { name: user.name, age: user.age, email: user.email, createdAt: user.createdAt };
+      await PendingUserModel.findByIdAndDelete(pendingUser._id);
+      
+      const showUser = { name: user.name, age: user.age, email: user.email, id: user._id, createdAt: user.createdAt };
       
       const result = await sendMail({ to: user.email, subject: "Your Study Pilot account has been successfully created", text: accountCreated.text(user.name), html: accountCreated.page(user.name) })
       
