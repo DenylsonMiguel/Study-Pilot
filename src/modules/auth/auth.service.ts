@@ -2,10 +2,16 @@ import { Result } from "../../core/result.js";
 import { sendMail } from "../../core/mail/sendgrid.js";
 import * as accountCreated from "../../core/mail/pages/accountCreated.js";
 import * as confirmEmail from "../../core/mail/pages/confirmEmail.js";
+import * as loginSuccessfull from "../../core/mail/pages/login.js";
 import type { User } from "../../models/users.js";
 import { UserModel, PendingUserModel } from "../../models/users.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("evirorment variable JWT_SECRET is not defined");
 
 export class AuthService {
   async register(data: { name: string, age: number, password: string, email: string }): Promise<Result<{ email: string }>> {
@@ -47,11 +53,11 @@ export class AuthService {
       if (token !== pendingUser.token) return Result.fail("Wrong token", 401, "UNAUTHORIZED");
       
       const user = new UserModel({ name: pendingUser.name, age: pendingUser.age,  email: pendingUser.email, password: pendingUser.password });
-      await user.save;
+      await user.save();
       
-      await PendingUserModel.findByIdAndDelete(pendingUser._id);
+      if (user) await PendingUserModel.findByIdAndDelete(pendingUser._id);
       
-      const showUser = { name: user.name, age: user.age, email: user.email, id: user._id, createdAt: user.createdAt };
+      const showUser = { name: user.name, age: user.age, email: user.email, id: user._id as unknown as string, createdAt: user.createdAt };
       
       const result = await sendMail({ to: user.email, subject: "Your Study Pilot account has been successfully created", text: accountCreated.text(user.name), html: accountCreated.page(user.name) })
       
@@ -64,6 +70,29 @@ export class AuthService {
     } catch (err) {
       console.error("Error on create user: " + err);
       return Result.fail("Internal server error", 500, "SERVER_ERROR");
+    }
+  }
+  
+  async login(email: string, password: string): Promise<Result<{ token: string }>> {
+    try {
+      const user = await UserModel.findOne({ email });
+      if (!user) return Result.fail("User not found", 404, "NOT_FOUND");
+      
+      const isMatch = bcrypt.compare(password, user.password);
+      if (!isMatch) return Result.fail("Wrong Password", 401, "UNAUTHORIZED");
+      
+      const result = await sendMail({ to: email, subject: "You have successfully logged in", text: loginSuccessfull.text(user.name) , html: loginSuccessfull.page(user.name) });
+      
+      if (!result.success) {
+        console.error("Error on sending email: " + result.error);
+        return Result.fail("Internal server error", 500, "SERVER_ERROR");
+      }
+      
+      const token = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET!, { expiresIn: "1h"});
+      return Result.ok({ token }, 200);
+    } catch (err) {
+      console.error("Error on login: " + err);
+      return Result.fail("Internal Server Error", 500, "SERVER_ERROR");
     }
   }
 }

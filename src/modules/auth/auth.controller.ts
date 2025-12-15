@@ -44,6 +44,18 @@ class AuthController {
     
     respond<{ user: { name: string, age: number, email: string, id: string, createdAt: Date } }>(result, res);
   }
+  
+  login = async (req: Request, res: Response) => {
+    if (!req.body) return respond<string>(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
+    const { email, password} = req.body;
+    
+    if (!email) return respond<string>(Result.fail("Missing Email", 400, "BAD_REQUEST"), res);
+    if (!password) return respond<string>(Result.fail("Missing Password", 400, "BAD_REQUEST"), res);
+    
+    const result = await this.service.login(email, password);
+    
+    return respond<{ token: string }>(result, res);
+  }
 }
 
 export default function authController() { 

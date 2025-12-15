@@ -2,6 +2,7 @@ import express from "express";
 import type { Express, Request, Response } from "express";
 import pkg from "../package.json" with { type: "json" };
 import authRoutes from "./modules/auth/auth.routes.js";
+import adminRoutes from "./modules/admin/admin.routes.js";
 // import usersRoutes from "./modules/users/users.routes.js";
 // import subjectsRoutes from "./modules/subjects/subjects.routes.js";
 
@@ -25,6 +26,7 @@ app.use(rateLimit({
 app.use(express.static("public"))
 
 app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
 // app.use("/users", usersRoutes);
 // app.use("/subjects", subjectsRoutes);
 
