@@ -1,13 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 import type { Subject } from "./subjects.js";
-
+import { UserRole } from "../modules/auth/auth.roles.js";
 // --- User --- //
 
 export interface User extends Document {
   name: string;
   age: number;
   createdAt: Date;
-  role: "user" | "admin";
+  role: UserRole;
   password: string;
   email: string;
   subjects: string[];
@@ -17,7 +17,7 @@ const userSchema = new Schema<User>({
   name: { type: String, required: true, unique: true },
   age: { type: Number, required: true },
   createdAt: { type: Date, required: true, default: Date.now() },
-  role: { type: String, enum: ["user", "admin"], default: "user" },
+  role: { type: String, enum: Object.values(UserRole), default: UserRole.USER, required: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   subjects: { type: [String], required: true, default: [] }
