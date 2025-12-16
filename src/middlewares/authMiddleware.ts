@@ -15,7 +15,7 @@ export async function verifyJWT(
 
   if (!authHeader?.startsWith('Bearer ')) {
     return respond(
-      Result.fail('Invalid token', 400, 'BAD_REQUEST'),
+      Result.fail('Invalid or missing token', 401, 'UNAUTHORIZED'),
       res
     );
   }
@@ -24,7 +24,7 @@ export async function verifyJWT(
 
   if (!token) {
     return respond(
-      Result.fail('Missing token', 400, 'BAD_REQUEST'),
+      Result.fail('Invalid Missing token', 401, 'UNAUTHORIZED'),
       res
     );
   }
@@ -63,7 +63,7 @@ export async function verifyJWT(
     next();
   } catch {
     return respond(
-      Result.fail('Invalid or Expired token', 400, 'BAD_REQUEST'),
+      Result.fail('Invalid or Expired token', 401, 'UNAUTHORIZED'),
       res
     );
   }

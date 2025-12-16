@@ -13,11 +13,15 @@ import morgan from "morgan";
 
 const app: Express = express();
 
+if (!process.env.FRONTEND_URL) throw new Error("FRONTEND_URL not set");
+
+
 app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({
-  origin: "*"
+  origin: process.env.FRONTEND_URL,
+  credentials: true
 }));
 app.use(rateLimit({
   windowMs: 60 * 1000,

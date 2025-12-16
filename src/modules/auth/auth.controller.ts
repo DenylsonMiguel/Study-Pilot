@@ -9,53 +9,58 @@ class AuthController {
   private service = new AuthService();
   
   register = async (req: Request, res: Response) => {
-    if (!req.body) return respond<User>(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
-    
-    const data = req.body;
-    if (!data.name) return respond<User>(Result.fail("Missing name", 400, "BAD_REQUEST"), res);
-
-    if (data.name.length < 3 || data.name.length > 15) return respond<User>(Result.fail("Invalid name", 400, "BAD_REQUEST"), res);
-    
-    if (!data.age) return respond<User>(Result.fail("Missing age", 400, "BAD_REQUEST"), res);
-    
-    if (data.age < 1 || data.age > 100) return respond<User>(Result.fail("Invalid age", 400, "BAD_REQUEST"), res);
-    
-    
-    if (!data.password) respond<User>(Result.fail("Missing password", 400, "BAD_REQUEST"), res);
-    
-    if (data.password.length < 6 || data.password.length > 15) return respond<User>(Result.fail("Invalid password", 400, "BAD_REQUEST"), res);
-    
-    if (!data.email) return respond<User>(Result.fail("Missing email", 400, "BAD_REQUEST"), res);
-    
-    if (!verifyEmail(data.email)) return respond<User>(Result.fail("Invalid email", 400, "BAD_REQUEST"), res);
-    
-    const result = await this.service.register({ name: data.name, age: data.age, password: data.password, email: data.email });
-    
-    respond<{ email: string }>(result, res);
-  }
+    if (!req.body)
+      return respond(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
+  
+    const { name, age, email, password } = req.body;
+  
+    if (typeof name !== "string" || name.length < 3 || name.length > 15)
+      return respond(Result.fail("Invalid or Missing name", 400, "BAD_REQUEST"), res);
+  
+    if (typeof age !== "number" || age < 1 || age > 100)
+      return respond(Result.fail("Invalid or Missing age", 400, "BAD_REQUEST"), res);
+  
+    if (typeof password !== "string" || password.length < 6 || password.length > 15)
+      return respond(Result.fail("Invalid or Missing password", 400, "BAD_REQUEST"), res);
+  
+    if (typeof email !== "string" || !verifyEmail(email))
+      return respond(Result.fail("Invalid or Missing email", 400, "BAD_REQUEST"), res);
+  
+    const result = await this.service.register({ name, age, email, password });
+    return respond(result, res);
+  };
   
   confirm = async (req: Request, res: Response) => {
-    if (!req.body) return respond<User>(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
+    if (!req.body)
+      return respond(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
+  
     const { token, password } = req.body;
-    if (!token) return respond<User>(Result.fail("Missing token", 400, "BAD_REQUEST"), res);
-    if (!password) return respond<User>(Result.fail("Missing password", 400, "BAD_REQUEST"), res);
-    
+  
+    if (typeof token !== "string")
+      return respond(Result.fail("Missing token", 400, "BAD_REQUEST"), res);
+  
+    if (typeof password !== "string")
+      return respond(Result.fail("Missing password", 400, "BAD_REQUEST"), res);
+  
     const result = await this.service.confirm(token, password);
-    
-    respond<{ user: { name: string, age: number, email: string, id: string, createdAt: Date } }>(result, res);
-  }
+    return respond(result, res);
+  };
   
   login = async (req: Request, res: Response) => {
-    if (!req.body) return respond<string>(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
-    const { email, password} = req.body;
-    
-    if (!email) return respond<string>(Result.fail("Missing Email", 400, "BAD_REQUEST"), res);
-    if (!password) return respond<string>(Result.fail("Missing Password", 400, "BAD_REQUEST"), res);
-    
+    if (!req.body)
+      return respond(Result.fail("Missing body", 400, "BAD_REQUEST"), res);
+  
+    const { email, password } = req.body;
+  
+    if (typeof email !== "string")
+      return respond(Result.fail("Invalid or Missing Email", 400, "BAD_REQUEST"), res);
+  
+    if (typeof password !== "string")
+      return respond(Result.fail("Invalid or Missing Password", 400, "BAD_REQUEST"), res);
+  
     const result = await this.service.login(email, password);
-    
-    return respond<{ token: string }>(result, res);
-  }
+    return respond(result, res);
+  };
 }
 
 export default function authController() { 
