@@ -10,6 +10,9 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
+const DUMMY_PASSWORD_HASH =
+  "$2b$10$CwTycUXWue0Thq9StjUM0uJ8J8q8E8e8E8e8E8e8E8e8E8e8";
+
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error("evirorment variable JWT_SECRET is not defined");
 
@@ -17,15 +20,15 @@ export class AuthService {
   async register(data: { name: string, age: number, password: string, email: string }): Promise<Result<{ email: string }>> {
     const existingUName = await UserModel.findOne({ name: data.name });
     const existingUEmail = await UserModel.findOne({ email: data.email });
-    if (existingUName || existingUEmail) return Result.fail("This user already exists", 409, "CONFLICT");
+    if (existingUName || existingUEmail) return Result.fail("Unable to create account", 409, "CONFLICT");
     
     const existingPName = await PendingUserModel.findOne({ name: data.name });
     const existingPEmail = await PendingUserModel.findOne({ email: data.email });
-    if (existingPName || existingPEmail) return Result.fail("This user already pending", 409, "CONFLICT");
+    if (existingPName || existingPEmail) return Result.fail("Unable to create account", 409, "CONFLICT");
     
     try {
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      const token = crypto.randomBytes(5).toString("hex");
+      const token = crypto.randomBytes(16).toString("hex");
       const result = await sendMail({ to: data.email, subject: "Verify your StudyPilot email", text: confirmEmail.text(data.name, token) , html: confirmEmail.page(data.name, token) });
       
       if (!result.success) {
@@ -46,11 +49,10 @@ export class AuthService {
   async confirm(token: string, password: string): Promise<Result<{ user: { name: string, age: number, email: string, id: string, createdAt: Date } }>> {
     try {
       const pendingUser = await PendingUserModel.findOne({ token });
-      if (!pendingUser) return Result.fail("User not found", 404, "NOT_FOUND");
+      if (!pendingUser) return Result.fail("Wrong token", 404, "NOT_FOUND");
       
       const isMatch = await bcrypt.compare(password, pendingUser.password);
       if (!isMatch) return Result.fail("Wrong password", 401, "UNAUTHORIZED");
-      if (token !== pendingUser.token) return Result.fail("Wrong token", 401, "UNAUTHORIZED");
       
       const user = new UserModel({ name: pendingUser.name, age: pendingUser.age,  email: pendingUser.email, password: pendingUser.password });
       await user.save();
@@ -59,12 +61,8 @@ export class AuthService {
       
       const showUser = { name: user.name, age: user.age, email: user.email, id: user._id as unknown as string, createdAt: user.createdAt };
       
-      const result = await sendMail({ to: user.email, subject: "Your Study Pilot account has been successfully created", text: accountCreated.text(user.name), html: accountCreated.page(user.name) })
-      
-      if (!result.success) {
-        console.error("Error on sending email: " + result.error);
-        return Result.fail("Internal server error", 500, "SERVER_ERROR");
-      }
+      await sendMail({ to: user.email, subject: "Your Study Pilot account has been successfully created", text: accountCreated.text(user.name), html: accountCreated.page(user.name) })
+        .catch((err) => console.error("Error on sending email: " + err));
       
       return Result.ok({ user: showUser }, 201);
     } catch (err) {
@@ -75,18 +73,21 @@ export class AuthService {
   
   async login(email: string, password: string): Promise<Result<{ token: string }>> {
     try {
+      const start = Date.now();
+      
       const user = await UserModel.findOne({ email });
-      if (!user) return Result.fail("User not found", 404, "NOT_FOUND");
       
-      const isMatch = bcrypt.compare(password, user.password);
-      if (!isMatch) return Result.fail("Wrong Password", 401, "UNAUTHORIZED");
+      const isMatch = await bcrypt.compare(password, user ? user.password : DUMMY_PASSWORD_HASH);
       
-      const result = await sendMail({ to: email, subject: "You have successfully logged in", text: loginSuccessfull.text(user.name) , html: loginSuccessfull.page(user.name) });
-      
-      if (!result.success) {
-        console.error("Error on sending email: " + result.error);
-        return Result.fail("Internal server error", 500, "SERVER_ERROR");
+      const elapsed = Date.now() - start;
+      if (elapsed < 300) {
+        await new Promise(r => setTimeout(r, 300 - elapsed));
       }
+      
+      if (!isMatch || !user) return Result.fail("Wrong Email or Password", 401, "UNAUTHORIZED");
+      
+      await sendMail({ to: email, subject: "You have successfully logged in", text: loginSuccessfull.text(user.name) , html: loginSuccessfull.page(user.name) })
+        .catch((err) => console.error("Error on sending email: " + err));
       
       const token = jwt.sign({ id: user._id, name: user.name }, JWT_SECRET!, { expiresIn: "1h"});
       return Result.ok({ token }, 200);

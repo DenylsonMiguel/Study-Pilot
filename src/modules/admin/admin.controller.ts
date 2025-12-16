@@ -10,7 +10,7 @@ class AdminController {
   private service = new AdminService();
   
   getUsers = async (req: Request, res: Response) => {
-    if (!req.user || !req.user.role || (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.SEED_ADMIN)) return respond<{users: User[]}>(Result.fail("You dont have permission", 401, "UNAUTHORIZED"), res);
+    if (!req.user || !req.user.role || (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.SEED_ADMIN)) return respond<{users: User[]}>(Result.fail("You dont have permission", 403, "FORBBIDEN"), res);
     const result = await this.service.getUsers();
     respond<{users: User[]}>(result, res)
   }
