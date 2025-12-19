@@ -28,7 +28,7 @@ export class AuthService {
     
     try {
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      const token = crypto.randomBytes(16).toString("hex");
+      const token = crypto.randomBytes(10).toString("hex");
       const result = await sendMail({ to: data.email, subject: "Verify your StudyPilot email", text: confirmEmail.text(data.name, token) , html: confirmEmail.page(data.name, token) });
       
       if (!result.success) {
