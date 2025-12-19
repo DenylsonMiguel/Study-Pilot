@@ -1,10 +1,14 @@
 import express from "express";
 import type { Express, Request, Response } from "express";
 import pkg from "../package.json" with { type: "json" };
+import { rateLimiter } from "./middlewares/rateLimit.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
-// import usersRoutes from "./modules/users/users.routes.js";
+import usersRoutes from "./modules/users/users.routes.js";
 // import subjectsRoutes from "./modules/subjects/subjects.routes.js";
+
+import errorHandler from "./middlewares/errorHandler.js";
+import methodNotAllowed from "./middlewares/methodNotAllowed.js";
 
 import cors from "cors";
 import helmet from "helmet";
@@ -23,15 +27,12 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true
 }));
-app.use(rateLimit({
-  windowMs: 60 * 1000,
-  limit: 100,
-}));
+app.use(rateLimiter);
 app.use(express.static("public"))
 
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
-// app.use("/users", usersRoutes);
+app.use("/users", usersRoutes);
 // app.use("/subjects", subjectsRoutes);
 
 app.get('/', async (req: Request, res: Response) => {
@@ -41,5 +42,8 @@ app.get('/', async (req: Request, res: Response) => {
     version: pkg.version
   });
 });
+
+app.use(methodNotAllowed);
+app.use(errorHandler);
 
 export default app;

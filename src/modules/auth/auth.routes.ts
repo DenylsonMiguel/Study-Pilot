@@ -1,12 +1,14 @@
 import { Router } from "express";
 import authController from "./auth.controller.js";
-import { authRateLimiter } from "../../middlewares/rateLimit.js";
+import methodNotAllowed from "../../middlewares/methodNotAllowed.js";
 
 const controller = authController();
 const authRoutes: Router = Router();
 
 authRoutes.post('/register', controller.register);
-authRoutes.post('/confirm', authRateLimiter, controller.confirm);
-authRoutes.post('/login', authRateLimiter, controller.login);
+authRoutes.post('/confirm', controller.confirm);
+authRoutes.post('/login', controller.login);
+
+authRoutes.use(methodNotAllowed);
 
 export default authRoutes;
