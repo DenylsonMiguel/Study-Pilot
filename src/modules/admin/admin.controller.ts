@@ -5,12 +5,13 @@ import { respond } from "../../utils/respond.js";
 import type { User } from "../../models/users.js"
 import { verifyEmail } from "../../utils/verifyEmail.js";
 import { UserRole } from "../auth/auth.roles.js";
+import { isAdmin } from "../../utils/admin.js"
 
 class AdminController {
   private service = new AdminService();
   
   getUsers = async (req: Request, res: Response) => {
-    if (!req.user || !req.user.role || (req.user.role !== UserRole.ADMIN && req.user.role !== UserRole.SEED_ADMIN)) return respond<{users: User[]}>(Result.fail("You dont have permission", 403, "FORBBIDEN"), res);
+    if (!isAdmin(req.user)) return respond<{users: User[]}>(Result.fail("You dont have permission", 403, "FORBBIDEN"), res);
     const result = await this.service.getUsers();
     respond<{users: User[]}>(result, res)
   }

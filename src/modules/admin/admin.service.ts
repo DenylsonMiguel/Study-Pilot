@@ -10,7 +10,7 @@ export class AdminService {
       if (!users.length) return Result.fail("Users not found", 404, "NOT_FOUND");
       return Result.ok({ users }, 200);
     } catch (err) {
-      console.error("Error on create pending user: " + err);
+      console.error("Error on admin get users: " + err);
       return Result.fail("Internal server error", 500, "SERVER_ERROR");
     }
   }
