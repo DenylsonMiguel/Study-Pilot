@@ -7,6 +7,7 @@ const controller = subjectsController();
 const subjectsRoutes: Router = Router();
 
 subjectsRoutes.get('', verifyJWT, controller.getAll);
+subjectsRoutes.post('', verifyJWT, controller.create);
 subjectsRoutes.use(methodNotAllowed);
 
 export default subjectsRoutes;
