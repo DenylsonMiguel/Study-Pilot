@@ -18,7 +18,6 @@ export function page(name: string, token: string): string {
             <!-- Header -->
             <tr>
               <td style="background: #4a6df0; padding: 32px 20px; text-align: center; color: #ffffff;">
-                <img src="https://raw.githubusercontent.com/DenylsonMiguel/StudyPilot/main/public/images/StudyPilotFullLogo.png" alt="StudyPilot Logo" width="64" style="margin-bottom: 12px;" />
                 <h1 style="margin: 0; font-size: 22px;">Confirm Your Email</h1>
                 <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.9;">
                   Welcome to StudyPilot — your journey starts now!

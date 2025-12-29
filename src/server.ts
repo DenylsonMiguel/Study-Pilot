@@ -5,7 +5,7 @@ import { rateLimiter } from "./middlewares/rateLimit.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import adminRoutes from "./modules/admin/admin.routes.js";
 import usersRoutes from "./modules/users/users.routes.js";
-// import subjectsRoutes from "./modules/subjects/subjects.routes.js";
+import subjectsRoutes from "./modules/subjects/subjects.routes.js";
 
 import errorHandler from "./middlewares/errorHandler.js";
 import methodNotAllowed from "./middlewares/methodNotAllowed.js";
@@ -33,7 +33,7 @@ app.use(express.static("public"))
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/users", usersRoutes);
-// app.use("/subjects", subjectsRoutes);
+app.use("/subjects", subjectsRoutes);
 
 app.get('/', async (req: Request, res: Response) => {
   res.json({
